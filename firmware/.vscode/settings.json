@@ -12,7 +12,8 @@
     },
 
     "cmake.configureSettings": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_MAKE_PROGRAM": "D:/Java/ArmDev/make/bin/make.exe"
     },
     "C_Cpp.default.intelliSenseMode": "gcc-arm",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
