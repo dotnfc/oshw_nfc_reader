@@ -1,0 +1,34 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "defines": [
+                "AT32F415KBU7",
+                "F_CPU=144000000L",
+                "AT32F415KBU7_4",
+                "USE_STDPERIPH_DRIVER"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-arm",
+            "configurationProvider": "ms-vscode.cmake-tools",         
+            "compilerPath": "d:\\Java\\ArmDev\\armgcc10\\bin\\arm-none-eabi-g++.exe",   
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "compilerArgs": [
+                "-mthumb",
+                "-mcpu=cortex-m4",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}

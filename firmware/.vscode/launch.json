@@ -1,0 +1,62 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        // https://github.com/Marus/cortex-debug/wiki
+        {
+            // https://wiki.segger.com/J-Link_Visual_Studio_Code
+            // https://github.com/Marus/cortex-debug/wiki/J-Link-Specific-Configuration
+            "name": "Debug - JLink",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build/oshw_nfc_reader_app.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "jlink",
+            "serverpath": "JLinkGDBServerCL.exe", 
+            "device": "AT32F415KBU7-4",
+            "interface": "swd",
+            "serialNumber": "",
+            "gdbPath": "arm-none-eabi-gdb.exe",
+            "jlinkscript":"",
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                // "clearSearch": false    // OpenOCD users may have to un-comment this
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console"  
+                        // "type": "binary",
+                        // "encoding": "unsigned",
+                    }
+                ]
+            }
+        },
+        {
+            // https://github.com/Marus/cortex-debug/wiki/Multi-core-debugging#st-link-notes
+            "name": "Debug - ST-Link",
+            "cwd": "${workspaceFolder}",    
+            "type": "cortex-debug",
+            "executable": "./build/Project.elf",
+            "request": "launch", 
+            "servertype": "stlink",
+            "device": "AT32F403AVGT7",
+            "interface": "swd",
+            "serialNumber": "",
+            "gdbPath": "${config:CUBEIDE-ARMGCC}/arm-none-eabi-gdb.exe",
+            "serverpath": "${config:CUBEIDE-STLINK-GDB-SERVER}/ST-LINK_gdbserver.exe",
+            "stm32cubeprogrammer": "${config:CUBEIDE-PROG}",
+            "svdFile": "${workspaceFolder}/support/AT32F403Axx_v2.svd",
+            "v1": false,
+            "showDevDebugOutput": "parsed",
+            "serverArgs": [
+                "-l", "1",
+                "-t", "-s",
+            ],
+        }
+    ]
+}

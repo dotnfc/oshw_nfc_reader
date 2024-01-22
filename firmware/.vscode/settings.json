@@ -1,0 +1,29 @@
+{
+    "terminal.integrated.env.windows": {
+        
+    },
+
+    "terminal.integrated.env.linux": {
+        
+    },
+    "cmake.generator": "MinGW Makefiles",
+    "cmake.configureEnvironment": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+    },
+
+    "cmake.configureSettings": {
+        "CMAKE_BUILD_TYPE": "Debug"
+    },
+    "C_Cpp.default.intelliSenseMode": "gcc-arm",
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "cmake.configureOnEdit": false,
+    "editor.rulers": [
+        120
+    ],
+    "files.associations": {
+        "*.cjson": "jsonc",
+        "*.wxss": "css",
+        "*.wxs": "javascript",
+        "pn532.h": "c"
+    }
+}
