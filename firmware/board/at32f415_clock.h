@@ -35,6 +35,7 @@ extern "C" {
 
 /* exported functions ------------------------------------------------------- */
 void system_clock_config(void);
+void usbd_clock48m_select(usb_clk48_s clk_s);
 
 #ifdef __cplusplus
 }

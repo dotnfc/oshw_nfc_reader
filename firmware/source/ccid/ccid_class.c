@@ -28,10 +28,7 @@
 #include "ccid_desc.h"
 #include "ccid_interface.h"
 #include "ccid_cmd.h"
-
-/** @addtogroup AT32F413_middlewares_usbd_class
-  * @{
-  */
+#include <string.h>
 
 /** @defgroup USB_ccid_class
   * @brief usb device class ccid demo
@@ -70,6 +67,11 @@ usbd_class_handler ccid_class_handler =
   &ccid_struct
 };
 
+const uint8_t clock_frequencies[4] = { 0xa0, 0x0f, 0x00, 0x00 };
+const uint8_t ccid_data_rates[] = { 0x00, 0x2A, 0x00, 0x00 };
+static uint8_t ccid_get_clock_frequencies(usb_setup_type *setup, uint8_t* pbuf, uint16_t* plen);
+static uint8_t ccid_get_rats(usb_setup_type *setup, uint8_t* pbuf, uint16_t* plen);
+
 /**
   * @brief  initialize usb endpoint
   * @param  udev: to the structure of usbd_core_type
@@ -79,13 +81,6 @@ static usb_sts_type class_init_handler(void *udev)
 {
   usb_sts_type status = USB_OK;
   usbd_core_type *pudev = (usbd_core_type *)udev;
-
-#ifndef USB_EPT_AUTO_MALLOC_BUFFER
-  /* use user define buffer address */
-  usbd_ept_buf_custom_define(pudev, CCID_INTR_IN_EPT, EPT6_TX_ADDR);
-  usbd_ept_buf_custom_define(pudev, CCID_BULK_IN_EPT, EPT2_TX_ADDR);
-  usbd_ept_buf_custom_define(pudev, CCID_BULK_OUT_EPT, EPT1_RX_ADDR);
-#endif
 
   /* open in endpoint */
   usbd_ept_open(pudev, CCID_INTR_IN_EPT, EPT_INT_TYPE, CCID_INTR_EP_MAX_PACKET);
@@ -150,8 +145,7 @@ static usb_sts_type class_setup_handler(void *udev, usb_setup_type *setup)
              (setup->wLength != 0) &&
             ((setup->bmRequestType & 0x80) == 0x80))
             {
-            
-              if (sc_req_get_clock_frequencies((uint8_t *)pccid->ccid_ept0_buff, &len) != 0 )
+              if ( ccid_get_clock_frequencies(setup, (uint8_t *)pccid->ccid_ept0_buff, &len) != 0 )
               {
                 usbd_ctrl_unsupport(pudev);
                 return USB_FAIL;  
@@ -196,7 +190,7 @@ static usb_sts_type class_setup_handler(void *udev, usb_setup_type *setup)
              (setup->wLength != 0) &&
             ((setup->bmRequestType & 0x80) == 0x80))
            {
-              if ( sc_req_get_data_rates((uint8_t *)pccid->ccid_ept0_buff, &len) != 0 )
+              if ( ccid_get_rats(setup, (uint8_t *)pccid->ccid_ept0_buff, &len) != 0 )
               {
                 usbd_ctrl_unsupport(pudev);
                 return USB_FAIL;
@@ -307,7 +301,7 @@ static usb_sts_type class_out_handler(void *udev, uint8_t ept_num)
   usb_sts_type status = USB_OK;
   usbd_core_type *pudev = (usbd_core_type *)udev;
 
-  ccid_out_handler(pudev, ept_num);;
+  ccid_out_handler(pudev, ept_num);
 
   return status;
 }
@@ -356,6 +350,37 @@ static usb_sts_type class_event_handler(void *udev, usbd_event_type event)
   }
   return status;
 }
+
+uint8_t ccid_get_clock_frequencies(usb_setup_type *setup, uint8_t* pbuf, uint16_t* plen)
+{
+  if (plen != NULL)
+  {
+    * plen = sizeof(clock_frequencies);
+    return 0;
+  }
+   
+  if (pbuf != NULL)
+  {
+    memcpy(pbuf, (uint8_t *)clock_frequencies, sizeof(clock_frequencies));
+  }
+  return 0;
+} /* end of get_clock_frequencies */
+
+uint8_t ccid_get_rats(usb_setup_type *setup, uint8_t* pbuf, uint16_t* plen)
+{
+  if (plen != NULL)
+  {
+    * plen = sizeof(ccid_data_rates);
+    return 0;
+  }
+    
+  if (pbuf != NULL)
+  {
+    memcpy(pbuf, (uint8_t *)ccid_data_rates, sizeof(ccid_data_rates));
+  }
+        
+  return 0;
+} /* end of get_rats */
 
 /**
   * @}

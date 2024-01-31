@@ -28,10 +28,6 @@
 #include "usbd_core.h"
 #include "ccid_desc.h"
 
-/** @addtogroup AT32F413_middlewares_usbd_class
-  * @{
-  */
-
 /** @defgroup USB_cdc_desc
   * @brief usb device cdc descriptor
   * @{
@@ -110,15 +106,15 @@ ALIGNED_HEAD static uint8_t g_usbd_descriptor[USB_DEVICE_DESC_LEN] ALIGNED_TAIL 
 #endif
 ALIGNED_HEAD static uint8_t g_usbd_configuration[USBD_CCID_CONFIG_DESC_SIZE] ALIGNED_TAIL =
 {
-  USB_DEVICE_CFG_DESC_LEN,   /* bLength: Configuration Descriptor size */
-  USB_DESCIPTOR_TYPE_CONFIGURATION,   /* bDescriptorType: Configuration */
-  LBYTE(USBD_CCID_CONFIG_DESC_SIZE),          /* wTotalLength: bytes returned */
-  HBYTE(USBD_CCID_CONFIG_DESC_SIZE),          /* wTotalLength: bytes returned */
+  USB_DEVICE_CFG_DESC_LEN,              /* bLength: Configuration Descriptor size */
+  USB_DESCIPTOR_TYPE_CONFIGURATION,     /* bDescriptorType: Configuration */
+  LBYTE(USBD_CCID_CONFIG_DESC_SIZE),    /* wTotalLength: bytes returned */
+  HBYTE(USBD_CCID_CONFIG_DESC_SIZE),    /* wTotalLength: bytes returned */
   0x01,   /* bNumInterfaces: 1 interface */
   0x01,   /* bConfigurationValue: */
   0x04,   /* iConfiguration: */
-  0x80,         /*bmAttributes: bus powered */
-  0x32,   /* MaxPower 100 mA */
+  0x80,   /* bmAttributes: bus powered */
+  0x64,   /* MaxPower 200 mA */
   
   /********************  CCID **** interface ********************/
   0x09,   /* bLength: Interface Descriptor size */
@@ -138,27 +134,29 @@ ALIGNED_HEAD static uint8_t g_usbd_configuration[USBD_CCID_CONFIG_DESC_SIZE] ALI
   0x01,   /* bcdCCID(MSB) */
   
   0x00,	  /* bMaxSlotIndex :highest available slot on this device */
-  0x03,	  /* bVoltageSupport: bit Wise OR for 01h-5.0V 02h-3.0V
-                                    04h 1.8V*/
+  0x07,	  /* bVoltageSupport: bit Wise OR for 01h-5.0V 02h-3.0V 04h 1.8V */
   
-  0x01,0x00,0x00,0x00,
-  0x10,0x0E,0x00,0x00,
-  0x10,0x0E,0x00,0x00,
-  0x00,
-  0xCD,0x25,0x00,0x00,
-  0xCD,0x25,0x00,0x00,
-  0x00,    
-  0x00,0x00,0x00,0x00,
-  0x00,0x00,0x00,0x00,
-  0x00,0x00,0x00,0x00,
+  0x01,0x00,0x00,0x00,  /* dwProtocols: supports T=1 only */
+  0xA0,0x0F,0x00,0x00,  /* dwDefaultClock: 4 Mhz (0x00000FA0) */
+  0xA0,0x0F,0x00,0x00,  /* dwMaximumClock: 4 Mhz (0x00000FA0) */
+  0x00,                 /* bNumClockSupported => no manual setting */
+
+  0x00,0x2A,0x00,0x00,  /* dwDataRate: 10752 bps */
+  0x00,0x2A,0x00,0x00,  /* wMaxDataRate: 10752 bps */
+  0x00,                 /* bNumDataRatesSupported => no manual setting */
+
+  0x00,0x00,0x00,0x00,  /* dwMaxIFSD: 256 */
+  0x00,0x00,0x00,0x00,  /* dwSynchProtocols */
+  0x00,0x00,0x00,0x00,  /* dwMechanical: no special characteristics */
   
-  0x38,0x00,EXCHANGE_LEVEL_FEATURE,0x00,	 
-  0x0F,0x01,0x00,0x00,
-  0x00,
-  0x00,
-  0x00,0x00,
-  0x00,
-  0x01,
+  0x40,0x00,0x02,0x00,	/* dwFeatures: clk, baud rate, voltage : automatic */
+  0x0F,0x01,0x00,0x00,  /* dwMaxCCIDMessageLength : Maximun block size + header */
+
+  0x00,                 /* bClassGetResponse */
+  0x00,                 /* bClassEnvelope */
+  0x00,0x00,            /* wLcdLayout */
+  0x00,                 /* bPINSupport : no PIN verif and modif */
+  0x01,                 /* bMaxCCIDBusySlots */
 
   USB_DEVICE_EPT_LEN,
   USB_DESCIPTOR_TYPE_ENDPOINT,
@@ -175,7 +173,6 @@ ALIGNED_HEAD static uint8_t g_usbd_configuration[USBD_CCID_CONFIG_DESC_SIZE] ALI
   LBYTE(CCID_BULK_EP_MAX_PACKET),
   HBYTE(CCID_BULK_EP_MAX_PACKET),
   0x00,
-    
     
   USB_DEVICE_EPT_LEN,
   USB_DESCIPTOR_TYPE_ENDPOINT,

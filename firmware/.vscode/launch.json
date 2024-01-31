@@ -20,6 +20,7 @@
             "device": "AT32F415KBU7-4",
             "interface": "swd",
             "serialNumber": "",
+            //"showDevDebugOutput": "raw",
             "gdbPath": "arm-none-eabi-gdb.exe",
             "jlinkscript":"",
             "rttConfig": {

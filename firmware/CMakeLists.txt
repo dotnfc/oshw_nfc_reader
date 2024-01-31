@@ -19,10 +19,12 @@ add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-x$<SEMICOLON>assembler-with-cpp>)
 add_compile_options(-O0 -g)
 
 set(FREERTOS_SOURCE_DIR at32_lib/middlewares/freertos/source)
+set(USBD_SOURCE_DIR at32_lib/middlewares/usb_drivers/src)
 
 include_directories(
         include
         board
+        source/pn532
         at32_lib/libraries/cmsis/cm4/core_support 
         at32_lib/libraries/cmsis/cm4/device_support
         at32_lib/libraries/drivers/inc
@@ -32,12 +34,11 @@ include_directories(
         source/ccid
     )
 
-add_definitions(-DDEBUG -DRTOS_ENABLED -DUSE_OTG_DEVICE_MODE -DAT32F415KBU7_4)
+add_definitions(-DDEBUG -DRTOS_ENABLED -DAT32F415KBU7_4)
 
 file(GLOB_RECURSE SOURCES "source/*.*" "board/*.*"
         "at32_lib/libraries/cmsis/*.*" "at32_lib/libraries/drivers/*.*"
-        "at32_lib/middlewares/usb_drivers/*.*" 
-        "source/ccid/*.*"
+        "source/ccid/*.*" 
     )
 
 file(GLOB_RECURSE FREERTOS_SOURCES
@@ -51,11 +52,15 @@ file(GLOB_RECURSE FREERTOS_SOURCES
         ${FREERTOS_SOURCE_DIR}/portable/memmang/heap_4.c
         ${FREERTOS_SOURCE_DIR}/portable/GCC/ARM_CM3/*.c
     )
-
+file(GLOB_RECURSE USBD_SOURCES
+        ${USBD_SOURCE_DIR}/usb_core.c
+        ${USBD_SOURCE_DIR}/usbd_core.c
+        ${USBD_SOURCE_DIR}/usbd_int.c
+        ${USBD_SOURCE_DIR}/usbd_sdr.c
+    )
 list(FILTER SOURCES EXCLUDE REGEX "at32_lib/libraries/cmsis/dsp/.*")
 list(FILTER SOURCES EXCLUDE REGEX "at32_lib/libraries/cmsis/cm4/device_support/startup/iar/.*")
 list(FILTER SOURCES EXCLUDE REGEX "at32_lib/libraries/cmsis/cm4/device_support/startup/mdk/.*")
-list(FILTER SOURCES EXCLUDE REGEX "at32_lib/middlewares/usb_drivers/src/usbh*.*")
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/at32_lib/libraries/cmsis/cm4/device_support/startup/gcc/linker/AT32F415xB_FLASH.ld)
 
@@ -66,7 +71,7 @@ add_link_options(-mcpu=cortex-m4 -mthumb -mthumb-interwork)
 add_link_options(-specs=nosys.specs)
 add_link_options(-T ${LINKER_SCRIPT})
 
-add_executable(${PROJECT_NAME}.elf ${SOURCES} ${FREERTOS_SOURCES} ${LINKER_SCRIPT})
+add_executable(${PROJECT_NAME}.elf ${SOURCES} ${FREERTOS_SOURCES} ${USBD_SOURCES} ${LINKER_SCRIPT})
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
@@ -88,6 +93,6 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
 )
 
 add_custom_target(upload_jlink
-    COMMAND ${JLINK_EXECUTABLE} -device AT32F403ACGU7 -speed 10000 -if swd -autoconnect 1 -NoGui 1 -CommanderScript ${JFLASH_FILE}
+    COMMAND ${JLINK_EXECUTABLE} -device AT32F415KBU7-4 -speed 10000 -if swd -autoconnect 1 -NoGui 1 -CommanderScript ${JFLASH_FILE}
     DEPENDS ${PROJECT_NAME}.elf
 )

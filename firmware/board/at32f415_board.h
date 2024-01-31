@@ -76,8 +76,8 @@ typedef enum
 #define PN532_NSS_PORT          GPIOA
 #define PN532_RST_PIN           GPIO_PINS_0
 #define PN532_RST_PORT          GPIOB
-#define PN532_REQ_PIN           GPIO_PINS_1
-#define PN532_REQ_PORT          GPIOB
+#define PN532_IRQ_PIN           GPIO_PINS_1
+#define PN532_IRQ_PORT          GPIOB
 #define PN532_SCK_PIN           GPIO_PINS_5
 #define PN532_SCK_PORT          GPIOA
 #define PN532_MISO_PIN          GPIO_PINS_6
@@ -135,12 +135,15 @@ uint8_t at32_button_state(void);
 
 /* delay function */
 void delay_init(void);
-void delay_us(uint32_t nus);
 void delay_ms(uint16_t nms);
 void delay_sec(uint16_t sec);
+uint32_t delay_get_counter(void);
+uint32_t delay_get_counter_delta(uint32_t start);
 
 /* printf uart init function */
 void uart_print_init(uint32_t baudrate);
+
+void at32_gpio_init_output(gpio_type *port, uint16_t pin);
 
 /**
   * @}

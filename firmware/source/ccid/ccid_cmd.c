@@ -1,11 +1,14 @@
 #include "ccid_cmd.h"
 #include "ccid_interface.h"
 
-#if 0
+
 ccid_in_data_struct Ccid_resp_buff;
 
 static uint8_t ccid_check_cmd_params (uint32_t param_type);
 
+/**
+ * @brief Function to handle the Request PC->RDR ICC Power ON
+ */
 uint8_t pc_to_rdr_icc_power_on(void)
 {
   uint8_t vol, sc_vol = 0, idx, err;
@@ -28,53 +31,6 @@ uint8_t pc_to_rdr_icc_power_on(void)
     return SLOT_ERROR_BAD_POWERSELECT; 
   }
   
-  if ((vol == VOLTAGE_SELE_AUTOMATIC) || 
-      (vol == VOLTAGE_SELE_3V))
-  {
-    sc_vol = SC_VOLTAGE_3V;
-  }
-  else if (vol == VOLTAGE_SELE_5V)
-  {
-    sc_vol = SC_VOLTAGE_5V;
-  }
-  
-  sc_response_to_reset(sc_vol);
-  
-  err = ccid_check_cmd_params(CHK_ACTIVE_STATE);
-  if (err != 0)
-  {
-    if (vol != 0)
-    {
-      return err;
-    }
-    else
-    {
-      if (sc_vol != SC_VOLTAGE_5V)
-      {
-        sc_vol = SC_VOLTAGE_5V;
-        sc_response_to_reset(sc_vol);
-   
-        err = ccid_check_cmd_params(CHK_ACTIVE_STATE);
-        if (err != 0) 
-         return err;
-
-      }
-      else 
-      { 
-        ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_FAILED | BM_ICC_PRESENT_INACTIVE;
-        return err;
-      }
-    } 
-  }
-  
-  ccid_itf.ccid_in_data.dwLength = SIZE_OF_ATR;
-  ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_NO_ERROR | BM_ICC_PRESENT_ACTIVE;
-
-  for (idx = 0; idx < SIZE_OF_ATR ; idx++)
-  {
-    ccid_itf.ccid_in_data.abData[idx] = sc_struct.art_buf[idx];
-  }
-  
   return SLOT_NO_ERROR;
 }
 
@@ -89,18 +45,7 @@ uint8_t pc_to_rdr_icc_power_off(void)
   {
     return err;
   }
-  
-  if (sc_present_detect())
-  { 
-    ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_NO_ERROR | BM_ICC_PRESENT_INACTIVE;
-  }
-  else
-  {
-    ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_NO_ERROR | BM_ICC_NO_ICC_PRESENT;
-  }
-  sc_power_enable(FALSE);
-  sc_set_state(SC_POWER_OFF);
-  
+
   return SLOT_NO_ERROR;
 }
 
@@ -146,20 +91,7 @@ uint8_t pc_to_rdr_xfr_block(void)
   
   ccid_itf.ccid_in_data.dwLength = (uint16_t)ex_len;  
 
-
-  err = sc_xfer_block(&ccid_itf.ccid_out_cmd.abData[0], 
-                   ccid_itf.ccid_out_cmd.dwLength, 
-                   ex_len); 
-
-   if (err != SLOT_NO_ERROR)
-  {
-    ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_FAILED | BM_ICC_PRESENT_ACTIVE;
-  }
-  else
-  {
-    ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_NO_ERROR | BM_ICC_PRESENT_ACTIVE;
     err = SLOT_NO_ERROR;
-  }
   
   return err;
 }
@@ -201,17 +133,7 @@ uint8_t pc_to_rdr_reset_parameters(void)
   ccid_itf.ccid_out_cmd.abData[5] = 0x00;
   ccid_itf.ccid_out_cmd.abData[6] = 0x00;
   
-  err = sc_set_params((sc_protocol0_type *)(&(ccid_itf.ccid_out_cmd.abData[0])));
-  
-   if (err != SLOT_NO_ERROR)
-  {
-    ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_FAILED | BM_ICC_PRESENT_ACTIVE;
-  }
-  else
-  {
-    ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_NO_ERROR | BM_ICC_PRESENT_ACTIVE;
     err = SLOT_NO_ERROR;
-  }
   
   return err;
 }
@@ -249,7 +171,7 @@ uint8_t pc_to_rdr_set_parameters(void)
     ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_FAILED | BM_ICC_PRESENT_ACTIVE;
   } 
   
-  err = sc_set_params((sc_protocol0_type*)(&(ccid_itf.ccid_out_cmd.abData[0])));
+  
   
    if (err != SLOT_NO_ERROR)
   {
@@ -279,10 +201,7 @@ uint8_t pc_to_rdr_escape(void)
   if (err != 0) 
     return err;
   
-  err = sc_execute_escape(&ccid_itf.ccid_out_cmd.abData[0],
-                           ccid_itf.ccid_out_cmd.dwLength,
-                           &ccid_itf.ccid_in_data.abData[0],
-                           &size);
+  
   
   ccid_itf.ccid_in_data.dwLength = size;
   
@@ -317,7 +236,7 @@ uint8_t pc_to_rdr_icc_clock(void)
     return SLOT_ERROR_BAD_CLOCKCOMMAND;
   }
   
-  err = sc_set_clock(ccid_itf.ccid_out_cmd.bData_0);
+  
   
   if (err != SLOT_NO_ERROR)
   {
@@ -391,9 +310,6 @@ uint8_t pc_to_rdr_t0_apdu(void)
    return SLOT_ERROR_BAD_BMCHANGES;
   }
   
-  err = sc_t0_apdu(ccid_itf.ccid_out_cmd.bData_0, 
-                    ccid_itf.ccid_out_cmd.bData_1, 
-                    ccid_itf.ccid_out_cmd.bData_2);
   
    if (err != SLOT_NO_ERROR)
   {
@@ -426,7 +342,6 @@ uint8_t pc_to_rdr_mechanical(void)
    return SLOT_ERROR_BAD_BFUNCTION_MECHANICAL;
   }
   
-  err = sc_mechanical(ccid_itf.ccid_out_cmd.bData_0);
   
    if (err != SLOT_NO_ERROR)
   {
@@ -482,7 +397,6 @@ uint8_t pc_to_rdr_set_data_rate_clock_frequency(void)
   temp = (ccid_itf.ccid_out_cmd.abData[7]) & 0x000000FF;
   data_rate |= temp << 24;
   
-  err = sc_set_data_rate_clock_frequency(frequency, data_rate);
   ccid_itf.ccid_in_data.bError = err;
   
   if (err != SLOT_NO_ERROR)
@@ -536,9 +450,6 @@ uint8_t pc_to_rdr_secure(void)
       return err;
     }
   }
-
-  err = sc_secure(ccid_itf.ccid_out_cmd.dwLength, b_bwi, w_level_p, 
-                    &ccid_itf.ccid_out_cmd.abData[0], &res_len);
 
   ccid_itf.ccid_in_data.dwLength = res_len;
   
@@ -601,12 +512,7 @@ void rdr_to_pc_parameters(uint8_t errno)
   {
    ccid_itf.ccid_in_data.dwLength = 0;
   }
-    
-  ccid_itf.ccid_in_data.abData[0] = sc_struct.protocol0.bmFindexDindex ;
-  ccid_itf.ccid_in_data.abData[1] = sc_struct.protocol0.bmTCCKST0;
-  ccid_itf.ccid_in_data.abData[2] = sc_struct.protocol0.bGuardTimeT0;
-  ccid_itf.ccid_in_data.abData[3] = sc_struct.protocol0.bWaitingIntegerT0;
-  ccid_itf.ccid_in_data.abData[4] = sc_struct.protocol0.bClockStop;
+
   ccid_itf.ccid_in_data.bData = BPROTOCOL_NUM_T0; 
   
   send_data_req((uint8_t*)(&ccid_itf.ccid_in_data), length);
@@ -650,17 +556,6 @@ void rdr_to_pc_notify_slot_change(void)
   uint8_t *pdata = (uint8_t *)ccid_itf.int_data;
   pdata[OFFSET_INT_BMESSAGETYPE] = RDR_TO_PC_NOTIFYSLOTCHANGE;
   
-  if (sc_present_detect())
-  {	
-    pdata[OFFSET_INT_BMSLOTICCSTATE] = SLOT_ICC_PRESENT | SLOT_ICC_CHANGE;	
-  }
-  else
-  {	
-    pdata[OFFSET_INT_BMSLOTICCSTATE] = SLOT_ICC_CHANGE;
-    
-    sc_power_enable(FALSE);
-    sc_set_state(SC_POWER_OFF);
-  }
 }
 
 void ccid_upd_slot_status(uint8_t status)
@@ -697,11 +592,7 @@ static uint8_t ccid_check_cmd_params (uint32_t param_type)
   
   if (parameter & CHK_PARAM_CARD_PRESENT)
   { 
-    if (sc_present_detect() == 0)
-    {
-      ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_FAILED | BM_ICC_NO_ICC_PRESENT;
-      return SLOT_ERROR_ICC_MUTE;
-    }
+
   }
   
   if (parameter & CHK_PARAM_DWLENGTH)
@@ -747,16 +638,9 @@ static uint8_t ccid_check_cmd_params (uint32_t param_type)
   
   if (parameter & CHK_ACTIVE_STATE)
   {
-    if (sc_get_state() != SC_ACTIVE_ON_T0)
-    {
-      ccid_itf.ccid_in_data.bStatus = BM_COMMAND_STATUS_FAILED | BM_ICC_PRESENT_INACTIVE;
-      return SLOT_ERROR_HW_ERROR;
-    }    
+ 
   }
   
   return 0; 
 }
 
-#else
-
-#endif // 

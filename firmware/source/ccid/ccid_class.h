@@ -35,10 +35,6 @@ extern "C" {
 #include "usb_std.h"
 #include "usbd_core.h"
 
-/** @addtogroup AT32F413_middlewares_usbd_class
-  * @{
-  */
-
 /** @addtogroup USB_ccid_class
   * @{
   */

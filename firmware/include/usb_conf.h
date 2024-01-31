@@ -37,31 +37,18 @@ extern "C" {
 #include "at32f415_board.h"
 
 
-/** @addtogroup AT32F413_periph_examples
-  * @{
-  */
-
-/** @addtogroup 413_USB_device_vcp_loopback
-  * @{
-  */
-
 /**
-  * @brief usb endpoint max num define
+  * @brief enable usb device mode
   */
-#ifndef USB_EPT_MAX_NUM
-#define USB_EPT_MAX_NUM                   8  /*!< usb device support endpoint number */
-#endif
+#define USE_OTG_DEVICE_MODE
 
-/**
-  * @brief usb buffer extend to 768-1280 bytes
-  */
-//#define USB_BUFFER_SIZE_EX  /*!< usb enable extend buffer */
-
-
-/**
-  * @brief auto malloc usb endpoint buffer
-  */
-//#define USB_EPT_AUTO_MALLOC_BUFFER  /*!< usb auto malloc endpoint tx and rx buffer */
+#define USB_ID                           0
+#define OTG_CLOCK                        CRM_OTGFS1_PERIPH_CLOCK
+#define OTG_IRQ                          OTGFS1_IRQn
+#define OTG_IRQ_HANDLER                  OTGFS1_IRQHandler
+#define OTG_WKUP_IRQ                     OTGFS1_WKUP_IRQn
+#define OTG_WKUP_HANDLER                 OTGFS1_WKUP_IRQHandler
+#define OTG_WKUP_EXINT_LINE              EXINT_LINE_18
 
 /* otg1 device fifo */
 #define USBD_RX_SIZE                     128
@@ -75,67 +62,37 @@ extern "C" {
   */
 #ifndef USB_EPT_MAX_NUM
 #define USB_EPT_MAX_NUM                   4
-#endif
+#endif // USB_EPT_MAX_NUM
 
 
 /**
-  * @brief usb host mode config
+  * @brief usb sof output enable
   */
-#ifdef USE_OTG_HOST_MODE
-#ifndef USB_HOST_CHANNEL_NUM
-#define USB_HOST_CHANNEL_NUM             8
-#endif
+// #define USB_SOF_OUTPUT_ENABLE
 
 /**
-  * @brief usb host mode fifo
+  * @brief ignore vbus detection, only available in at32f415xx revision C.
+  *        at32f415xx revision B (not support)
+  *        the vbus detection pin (pa9) can not be used for other functionality.
+  *        vbus pin must kept at VBUS or VDD.
+  *
+  *        at32f415xx revision C (support)
+  *        ignore vbus detection, the internal vbus is always valid.
+  *        the vbus pin (pa9) can be used for other functionality.
   */
-/* otg1 host fifo */
-#define USBH_RX_FIFO_SIZE                128
-#define USBH_NP_TX_FIFO_SIZE             96
-#define USBH_P_TX_FIFO_SIZE              96
-#endif
+#define USB_VBUS_IGNORE
 
-#ifndef USB_EPT_AUTO_MALLOC_BUFFER
 /**
-  * @brief user custom endpoint buffer
-  *        EPTn_TX_ADDR, EPTn_RX_ADDR must less than usb buffer size
+  * @brief usb low power wakeup handler enable
   */
+// #define USB_LOW_POWER_WAKUP
 
-/* ept0 tx start address 0x40, size 0x40,
-   so rx start address is 0x40 + 0x40 = 0x80 */
-#define EPT0_TX_ADDR                     0x40    /*!< usb endpoint 0 tx buffer address offset */
-#define EPT0_RX_ADDR                     0x80    /*!< usb endpoint 0 rx buffer address offset */
+#define CCID_BULK_IN_EPT                0x81
+#define CCID_BULK_OUT_EPT               0x01
+#define CCID_INTR_IN_EPT                0x82
 
-#define EPT1_TX_ADDR                     0x00    /*!< usb endpoint 1 tx buffer address offset */
-#define EPT1_RX_ADDR                     0xC0   /*!< usb endpoint 1 rx buffer address offset */
-
-#define EPT2_TX_ADDR                     0x100   /*!< usb endpoint 2 tx buffer address offset */
-#define EPT2_RX_ADDR                     0x00   /*!< usb endpoint 2 rx buffer address offset */
-
-#define EPT3_TX_ADDR                     0x00    /*!< usb endpoint 3 tx buffer address offset */
-#define EPT3_RX_ADDR                     0x00    /*!< usb endpoint 3 rx buffer address offset */
-
-#define EPT4_TX_ADDR                     0x00    /*!< usb endpoint 4 tx buffer address offset */
-#define EPT4_RX_ADDR                     0x00    /*!< usb endpoint 4 rx buffer address offset */
-
-#define EPT5_TX_ADDR                     0x00    /*!< usb endpoint 5 tx buffer address offset */
-#define EPT5_RX_ADDR                     0x00    /*!< usb endpoint 5 rx buffer address offset */
-
-#define EPT6_TX_ADDR                     0x140    /*!< usb endpoint 6 tx buffer address offset */
-#define EPT6_RX_ADDR                     0x00    /*!< usb endpoint 6 rx buffer address offset */
-
-#define EPT7_TX_ADDR                     0x00    /*!< usb endpoint 7 tx buffer address offset */
-#define EPT7_RX_ADDR                     0x00    /*!< usb endpoint 7 rx buffer address offset */
-
-#endif
-
-
-#define CCID_BULK_IN_EPT              0x82
-#define CCID_BULK_OUT_EPT             0x01
-#define CCID_INTR_IN_EPT              0x86
-
-#define CCID_BULK_EP_MAX_PACKET               64
-#define CCID_INTR_EP_MAX_PACKET               8
+#define CCID_BULK_EP_MAX_PACKET         64
+#define CCID_INTR_EP_MAX_PACKET         8
 
 void usb_delay_ms(uint32_t ms);
 void usb_delay_us(uint32_t us);
@@ -152,5 +109,5 @@ void usb_delay_us(uint32_t us);
 }
 #endif
 
-#endif
+#endif // __USB_CONF_H
 

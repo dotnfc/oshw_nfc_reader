@@ -25,6 +25,12 @@
         "*.cjson": "jsonc",
         "*.wxss": "css",
         "*.wxs": "javascript",
-        "pn532.h": "c"
+        "pn532.h": "c",
+        "at32f415_board.h": "c",
+        "at32f415_usb.h": "c",
+        "usb_conf.h": "c",
+        "ccid_class.h": "c",
+        "pn53x.h": "c",
+        "pn53x-internal.h": "c"
     }
 }

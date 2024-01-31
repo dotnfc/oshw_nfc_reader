@@ -8,9 +8,7 @@ static void ccid_send_data (usbd_core_type *pudev,
                               uint16_t len);
 
 void ccid_init(usbd_core_type *pudev)
-{
-  sc_set_default_params();  
-  
+{  
   ccid_itf.int_complete = 1;
   ccid_itf.slot_status.change  = 1;
 
@@ -234,6 +232,5 @@ void ccid_copy_cmd_data(uint8_t* p_dst, uint8_t length)
   {
     *p_dst++ = p_rx[idx];
   }
-  
 }
 
